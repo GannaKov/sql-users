@@ -51,9 +51,10 @@ usersRouter.put("/:id", async (req, res, next) => {
       throw { status: 404, message: "Not Found" };
     }
     text = `UPDATE clients
-SET firstname = '${firstName}', lastname = '${lastName}' 
+SET firstname = $1, lastname = $2 
 WHERE id=${id} RETURNING *`;
-    const resultPut = await db.query(text);
+    const values = [firstName, lastName];
+    const resultPut = await db.query(text, values);
 
     res.send(resultPut.rows[0]);
   } catch (error) {
