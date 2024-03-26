@@ -10,6 +10,7 @@ app.use(express.json());
 //const path = require('path');
 
 app.use("/users", usersRouter);
+
 app.use((err, req, res, next) => {
   if (err.status === 404) {
     res.status(404).send("Not found !");
