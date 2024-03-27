@@ -50,14 +50,16 @@ const putUser = async (req, res, next) => {
     const firstName = req.body.firstname;
     const lastName = req.body.lastname;
 
-    if (!firstName || !lastName) {
+    if (!firstName && !lastName) {
       throw { status: 400, message: "Bad Request" };
     }
-
+    const user = req.user;
+    const newUserFirstName = firstName || user.firstname;
+    const newUserLastName = lastName || user.lastname;
     text = `UPDATE clients
 SET firstname = $1, lastname = $2 
 WHERE id=$3 RETURNING *`;
-    const values = [firstName, lastName, id];
+    const values = [newUserFirstName, newUserLastName, id];
     const resultPut = await db.query(text, values);
 
     res.send(resultPut.rows[0]);
