@@ -5,7 +5,8 @@ const {
   putUser,
   deleteUser,
   postUser,
-} = require("../services/services");
+  checkUser,
+} = require("../controllers/controllers");
 
 const { body } = require("express-validator");
 
@@ -13,11 +14,11 @@ usersRouter = express.Router();
 
 usersRouter.get("/", getAllUsers);
 
-usersRouter.get("/:id", getUserById);
+usersRouter.get("/:id", checkUser, getUserById);
 
-usersRouter.put("/:id", putUser);
+usersRouter.put("/:id", checkUser, putUser);
 
-usersRouter.delete("/:id", deleteUser);
+usersRouter.delete("/:id", checkUser, deleteUser);
 
 usersRouter.post(
   "/",

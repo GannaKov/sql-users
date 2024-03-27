@@ -1,6 +1,22 @@
 const db = require("../db/client");
 const { matchedData, validationResult } = require("express-validator");
 
+//checkUser
+const checkUser = async (req, res, next) => {
+  try {
+    const id = req.params.id;
+    const user = await db.query(`SELECT * FROM clients WHERE id = $1`, [id]);
+    if (!user.rows[0]) {
+      throw { status: 404, message: "User not found" };
+    }
+    // console.log(" user.rows[0]", user.rows[0]);
+    req.user = user.rows[0];
+    next();
+  } catch (error) {
+    next(error);
+  }
+};
+
 //all users
 const getAllUsers = async (req, res, next) => {
   try {
@@ -18,17 +34,11 @@ const getAllUsers = async (req, res, next) => {
 //by Id
 const getUserById = async (req, res, next) => {
   try {
-    const id = req.params.id;
-    const result = await db.query(
-      `SELECT * FROM clients
- WHERE id = $1 `,
-      [id]
-    );
+    const user = req.user;
 
-    if (!result.rows[0]) {
-      throw { status: 404, message: "Not found" };
-    }
-    res.send(result.rows[0]);
+    res.send(user);
+
+    res.send(user);
   } catch (error) {
     next(error);
   }
@@ -39,17 +49,11 @@ const putUser = async (req, res, next) => {
     const id = req.params.id;
     const firstName = req.body.firstname;
     const lastName = req.body.lastname;
+
     if (!firstName || !lastName) {
       throw { status: 400, message: "Bad Request" };
     }
-    const user = await db.query(
-      `SELECT * FROM clients
- WHERE id = $1 `,
-      [id]
-    );
-    if (!user) {
-      throw { status: 404, message: "Not Found" };
-    }
+
     text = `UPDATE clients
 SET firstname = $1, lastname = $2 
 WHERE id=$3 RETURNING *`;
@@ -67,11 +71,7 @@ WHERE id=$3 RETURNING *`;
 const deleteUser = async (req, res, next) => {
   try {
     const id = req.params.id;
-    const user = await db.query(`SELECT * FROM clients
- WHERE id = ${id} `);
-    if (!user) {
-      throw { status: 404, message: "Not Found" };
-    }
+
     const resultDelete = await db.query(
       `DELETE FROM clients WHERE id=$1 RETURNING *`,
       [id]
@@ -94,7 +94,7 @@ const postUser = async (req, res, next) => {
         "INSERT INTO clients (firstname, lastname) VALUES ($1, $2)  RETURNING *",
         [data.firstname, data.lastname]
       );
-      console.log(resultPost);
+
       return res.send(resultPost.rows[0]);
     } else {
       throw { status: 400, message: "Bad Request", errors: result.array() };
@@ -103,4 +103,11 @@ const postUser = async (req, res, next) => {
     next(error);
   }
 };
-module.exports = { getAllUsers, getUserById, putUser, deleteUser, postUser };
+module.exports = {
+  getAllUsers,
+  getUserById,
+  putUser,
+  deleteUser,
+  postUser,
+  checkUser,
+};
