@@ -3,13 +3,22 @@ const { Pool } = require("pg");
 require("dotenv").config();
 
 const { USER_NAME, HOST, DATABASE, PASSWORD } = process.env;
-console.log(PASSWORD, USER_NAME);
+
+// const pool = new Pool({
+//   user: USER_NAME,
+//   host: HOST,
+//   database: DATABASE,
+//   password: PASSWORD,
+//   port: 5432,
+// });
+
 const pool = new Pool({
-  user: USER_NAME,
-  host: HOST,
-  database: DATABASE,
-  password: PASSWORD,
-  port: 5432,
+  connectionString: process.env.POSTGRES_URL,
+});
+
+pool.connect((err) => {
+  if (err) throw err;
+  console.log("Connect to PostgreSQL successfully!");
 });
 
 const query = (text, params, callback) => {
