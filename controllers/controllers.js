@@ -37,8 +37,6 @@ const getUserById = async (req, res, next) => {
     const user = req.user;
 
     res.send(user);
-
-    res.send(user);
   } catch (error) {
     next(error);
   }
